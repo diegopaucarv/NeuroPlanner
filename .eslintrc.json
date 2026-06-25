@@ -1,0 +1,15 @@
+{
+  "extends": ["expo", "plugin:react-native/all"],
+  "plugins": ["react-native"],
+  "rules": {
+    "react-native/no-raw-text": [
+      "error",
+      {
+        "skip": ["AppContent", "Main", "NavBar", "NavItem"]
+      }
+    ],
+    "react-native/no-unused-styles": "warn",
+    "react-native/split-platform-components": "warn",
+    "react-native/no-inline-styles": "off"
+  }
+}

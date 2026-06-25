@@ -1,0 +1,21 @@
+@import "tailwindcss";
+
+@theme {
+    --bright-lavender: #bf83fbff;
+    --mauve: #d6b8f5ff;
+    --lavender-veil: #f2e7feff;
+    --charcoal: #515151ff;
+    --black: #010101ff;
+    --carbon-black: #191919ff;
+    --vintage-grape: #473a63ff;
+}
+
+.theme {
+    --bright-lavender: #bf83fbff;
+    --mauve: #d6b8f5ff;
+    --lavender-veil: #f2e7feff;
+    --charcoal: #515151ff;
+    --black: #010101ff;
+    --carbon-black: #191919ff;
+    --vintage-grape: #473a63ff;
+}
