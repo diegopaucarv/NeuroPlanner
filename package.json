@@ -3,8 +3,11 @@
   "version": "1.0.0",
   "main": "index.ts",
   "scripts": {
-    "dev": "expo start --web",
-    "start": "expo start",
+    "dev": "next dev",
+    "dev:mobile": "expo start --web",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
