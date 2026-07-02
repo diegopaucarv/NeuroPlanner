@@ -1,0 +1,33 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 0 0% 100%;
+  --foreground: 0 0% 3.6%;
+  --primary: 280 100% 35%;
+  --secondary: 200 100% 50%;
+  --accent: 280 85% 65%;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: 0 0% 3.6%;
+    --foreground: 0 0% 98%;
+    --primary: 280 100% 65%;
+    --secondary: 200 100% 45%;
+    --accent: 280 85% 55%;
+  }
+}
+
+* {
+  @apply border-border;
+}
+
+html {
+  @apply bg-background text-foreground;
+}
+
+body {
+  @apply bg-background;
+}
