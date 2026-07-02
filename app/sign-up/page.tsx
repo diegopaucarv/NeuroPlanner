@@ -35,7 +35,8 @@ export default function SignUp() {
       router.push('/')
       router.refresh()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred')
+      const errorMsg = err instanceof Error ? err.message : 'An error occurred'
+      setError(errorMsg)
     } finally {
       setIsLoading(false)
     }

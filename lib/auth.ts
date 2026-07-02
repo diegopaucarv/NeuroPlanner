@@ -35,14 +35,16 @@ export const auth = betterAuth({
   baseURL,
   basePath: '/api/auth',
   secret: process.env.NEON_AUTH_COOKIE_SECRET,
-  trustedOrigins: [
-    baseURL,
-    ...(process.env.VERCEL_PROJECT_PRODUCTION_URL
-      ? [`https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`]
-      : []),
-    ...(process.env.VERCEL_URL ? [`https://${process.env.VERCEL_URL}`] : []),
-    process.env.V0_RUNTIME_URL ? process.env.V0_RUNTIME_URL : '',
-  ].filter(Boolean) as string[],
+  trustedOrigins:
+    process.env.NODE_ENV === 'development'
+      ? ['*']
+      : [
+          baseURL,
+          ...(process.env.VERCEL_PROJECT_PRODUCTION_URL
+            ? [`https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`]
+            : []),
+          ...(process.env.VERCEL_URL ? [`https://${process.env.VERCEL_URL}`] : []),
+        ].filter(Boolean),
   advanced: {
     defaultCookieAttributes: {
       sameSite: process.env.NODE_ENV === 'development' ? 'none' : 'lax',
