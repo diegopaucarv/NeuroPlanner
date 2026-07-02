@@ -18,10 +18,10 @@ export const user = pgTable('user', {
   id: text('id').primaryKey(),
   name: text('name'),
   email: text('email').unique().notNull(),
-  emailVerified: boolean('emailVerified').notNull().default(false),
+  emailVerified: boolean('emailverified').notNull().default(false),
   image: text('image'),
-  createdAt: timestamp('createdAt').notNull().defaultNow(),
-  updatedAt: timestamp('updatedAt').notNull().defaultNow(),
+  createdAt: timestamp('createdat').notNull().defaultNow(),
+  updatedAt: timestamp('updatedat').notNull().defaultNow(),
 })
 
 export const session = pgTable('session', {
@@ -29,27 +29,27 @@ export const session = pgTable('session', {
   userId: text('userId')
     .notNull()
     .references(() => user.id, { onDelete: 'cascade' }),
-  expiresAt: timestamp('expiresAt').notNull(),
-  createdAt: timestamp('createdAt').notNull().defaultNow(),
-  updatedAt: timestamp('updatedAt').notNull().defaultNow(),
+  expiresAt: timestamp('expiresat').notNull(),
+  createdAt: timestamp('createdat').notNull().defaultNow(),
+  updatedAt: timestamp('updatedat').notNull().defaultNow(),
 })
 
 export const account = pgTable(
   'account',
   {
     id: text('id').primaryKey(),
-    userId: text('userId')
+    userId: text('userid')
       .notNull()
       .references(() => user.id, { onDelete: 'cascade' }),
-    accountId: text('accountId').notNull(),
+    accountId: text('accountid').notNull(),
     provider: text('provider').notNull(),
-    providerAccountId: text('providerAccountId').notNull(),
-    refreshToken: text('refreshToken'),
-    accessToken: text('accessToken'),
-    expiresAt: timestamp('expiresAt'),
+    providerAccountId: text('provideraccountid').notNull(),
+    refreshToken: text('refreshtoken'),
+    accessToken: text('accesstoken'),
+    expiresAt: timestamp('expiresat'),
     password: text('password'),
-    createdAt: timestamp('createdAt').notNull().defaultNow(),
-    updatedAt: timestamp('updatedAt').notNull().defaultNow(),
+    createdAt: timestamp('createdat').notNull().defaultNow(),
+    updatedAt: timestamp('updatedat').notNull().defaultNow(),
   },
   (table) => [
     uniqueIndex('account_provider_idx').on(table.provider, table.providerAccountId),
@@ -60,9 +60,9 @@ export const verification = pgTable('verification', {
   id: text('id').primaryKey(),
   identifier: text('identifier').notNull(),
   value: text('value').notNull(),
-  expiresAt: timestamp('expiresAt').notNull(),
-  createdAt: timestamp('createdAt').notNull().defaultNow(),
-  updatedAt: timestamp('updatedAt').notNull().defaultNow(),
+  expiresAt: timestamp('expiresat').notNull(),
+  createdAt: timestamp('createdat').notNull().defaultNow(),
+  updatedAt: timestamp('updatedat').notNull().defaultNow(),
 })
 
 // ============ NeuroPlanner Tables ============

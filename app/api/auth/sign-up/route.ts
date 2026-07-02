@@ -65,10 +65,10 @@ export const POST = async (req: Request) => {
       }
     )
   } catch (error) {
-    console.error('[v0] Sign-up error:', error)
+    const errorMsg = error instanceof Error ? error.message : 'Sign-up failed'
     return new Response(
       JSON.stringify({
-        error: error instanceof Error ? error.message : 'Sign-up failed',
+        error: errorMsg,
       }),
       {
         status: 500,

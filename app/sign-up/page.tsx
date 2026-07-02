@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { authClient } from '@/lib/auth-client'
 
 export default function SignUp() {
   const router = useRouter()
@@ -19,20 +18,21 @@ export default function SignUp() {
     setIsLoading(true)
 
     try {
-      const response = await authClient.signUp.email({
-        email,
-        password,
-        name,
+      const response = await fetch('/api/auth/sign-up', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, name }),
       })
 
-      if (response.error) {
-        setError(response.error.message || 'Sign up failed')
+      const data = await response.json()
+
+      if (!response.ok) {
+        setError(data.error || 'Sign up failed')
         return
       }
 
-      // Refresh session and redirect
-      await authClient.getSession()
-      router.push('/')
+      // Redirect on success
+      router.push('/sign-in')
       router.refresh()
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : 'An error occurred'
