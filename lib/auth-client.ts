@@ -1,15 +1,9 @@
 import { createAuthClient } from 'better-auth/react'
-import { useRouter } from 'next/navigation'
+
+const baseURL = typeof window !== 'undefined' 
+  ? window.location.origin 
+  : (process.env.NEXT_PUBLIC_AUTH_URL || 'http://localhost:3000')
 
 export const authClient = createAuthClient({
-  baseURL: process.env.NEXT_PUBLIC_AUTH_URL || '',
+  baseURL,
 })
-
-export const useAuth = () => {
-  const router = useRouter()
-  
-  return {
-    ...authClient,
-    router,
-  }
-}

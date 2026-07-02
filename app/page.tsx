@@ -8,17 +8,20 @@ export default function Home() {
   const router = useRouter()
   const [session, setSession] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     const checkSession = async () => {
       try {
-        const response = await authClient.getSession()
-        if (!response.data?.session) {
+        const { data, error: sessionError } = await authClient.getSession()
+        if (sessionError || !data?.session) {
           router.push('/sign-in')
           return
         }
-        setSession(response.data.session)
-      } catch (error) {
+        setSession(data.session)
+      } catch (err) {
+        console.error('[v0] Session check error:', err)
+        setError('Failed to load session')
         router.push('/sign-in')
       } finally {
         setIsLoading(false)
