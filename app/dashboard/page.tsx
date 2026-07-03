@@ -68,7 +68,7 @@ export default function DashboardPage() {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto px-6 py-6">
+      <main className="flex-1 overflow-y-auto px-6 py-6 pb-32">
         {/* View: Today */}
         {currentView === 'today' && (
           <div className="max-w-4xl">
