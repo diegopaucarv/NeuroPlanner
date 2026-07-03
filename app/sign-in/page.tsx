@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { authClient } from '@/lib/auth-client'
 
 export default function SignIn() {
   const router = useRouter()
@@ -18,19 +17,21 @@ export default function SignIn() {
     setIsLoading(true)
 
     try {
-      const response = await authClient.signIn.email({
-        email,
-        password,
+      const response = await fetch('/api/auth/sign-in', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
       })
 
-      if (response.error) {
-        setError(response.error.message || 'Sign in failed')
+      const data = await response.json()
+
+      if (!response.ok) {
+        setError(data.error || 'Sign in failed')
         return
       }
 
-      // Refresh session and redirect
-      await authClient.getSession()
-      router.push('/')
+      // Redirect on success
+      router.push('/dashboard')
       router.refresh()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred')
