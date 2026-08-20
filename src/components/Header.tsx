@@ -1,22 +1,47 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, Pressable, StyleSheet } from "react-native";
 import { Vista } from "../lib/types";
 import { navigationItems } from "../NavBar";
-import { theme } from "../lib/theme";
+import { theme, fonts } from "../lib/theme";
+import Chevrons from "./Chevrons";
 
 interface HeaderProps {
-  currentActiveView: Vista;
+  currentActiveView?: Vista;
+  onPrevDay?: () => void;
+  onNextDay?: () => void;
+  dateLabel?: string;
+  /** Overrides the title derived from the active nav item (e.g. "This Week"). */
+  title?: string;
+  /** Called when the title/subtitle block is pressed (cycles the view mode). */
+  onTitlePress?: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ currentActiveView }) => {
+const Header: React.FC<HeaderProps> = ({
+  currentActiveView,
+  onPrevDay,
+  onNextDay,
+  dateLabel,
+  title,
+  onTitlePress,
+}) => {
   const activeItem = navigationItems.find(
     (item) => item.view === currentActiveView,
   );
-  const accentColor = activeItem?.highlightColor ?? "#2563eb";
+  const resolvedTitle = title ?? activeItem?.label ?? "Tasks";
   return (
     <View style={styles.header}>
-      <View style={[styles.bar, { backgroundColor: accentColor }]} />
-      <Text style={styles.label}>{activeItem?.label ?? "App"}</Text>
+      <Pressable
+        onPress={onTitlePress}
+        accessibilityRole="button"
+        accessibilityLabel={`${resolvedTitle} — switch view`}
+        style={({ pressed }) => [styles.titleBlock, pressed && { opacity: 0.6 }]}
+      >
+        <Text style={styles.title}>{resolvedTitle}</Text>
+        {dateLabel ? <Text style={styles.date}>{dateLabel}</Text> : null}
+      </Pressable>
+      {onPrevDay && onNextDay ? (
+        <Chevrons onPrev={onPrevDay} onNext={onNextDay} />
+      ) : null}
     </View>
   );
 };
@@ -25,13 +50,26 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
     paddingHorizontal: 16,
     paddingVertical: 12,
-    gap: 6,
-    backgroundColor: theme.black,
+    backgroundColor: theme.background,
   },
-  bar: { width: 6, height: 35, borderRadius: 3 },
-  label: { fontSize: 28, fontWeight: "700", color: "#f0f0f0" },
+  titleBlock: {
+    flexDirection: "column",
+  },
+  title: {
+    fontSize: 30,
+    fontWeight: "300",
+    fontFamily: fonts.heading,
+    color: theme.text,
+  },
+  date: {
+    fontSize: 15,
+    fontWeight: "300",
+    fontFamily: fonts.heading,
+    color: theme.accent,
+  },
 });
 
 export default Header;

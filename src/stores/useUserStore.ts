@@ -16,6 +16,7 @@ import {
   HealthMetricsDailyRow,
 } from "../db/repositories";
 import { UUID } from "../models/models";
+import { getData, UserData } from "../db/schemas";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -161,7 +162,7 @@ export const useUserStore = create<UserState>((set, get) => {
           return;
         }
 
-        const data = userEntity.data as Record<string, unknown>;
+        const data = getData<UserData>(userEntity);
 
         // Parallel fetch of related data
         const [battery, contacts, metrics] = await Promise.all([
@@ -172,10 +173,9 @@ export const useUserStore = create<UserState>((set, get) => {
 
         set({
           userId,
-          userName: (data.name as string) ?? "",
-          chronotype:
-            (data.chronotype as UserState["chronotype"]) ?? "moderate",
-          routineFlexibility: (data.routineFlexibility as number) ?? 50,
+          userName: data.name,
+          chronotype: data.chronotype,
+          routineFlexibility: data.routineFlexibility,
           profileData: data,
           socialBattery: battery
             ? {
@@ -411,8 +411,7 @@ export const useUserStore = create<UserState>((set, get) => {
           CryptoDigestAlgorithm.SHA256,
           `${password}:${salt}`,
         );
-        const stored = (user.data as Record<string, unknown>)
-          .password as string;
+        const stored = getData<UserData>(user).password;
         if (hashed !== stored) {
           set({ loading: false, error: "Contraseña incorrecta." });
           return;
@@ -437,8 +436,8 @@ export const useUserStore = create<UserState>((set, get) => {
           return;
         }
 
-        const data = profileData as Record<string, unknown>;
-        const storedHash = data.password as string | undefined;
+        const data = getData<UserData>({ data: profileData });
+        const storedHash = data.password;
         if (!storedHash) {
           set({
             loading: false,

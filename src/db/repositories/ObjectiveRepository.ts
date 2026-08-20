@@ -11,6 +11,7 @@ import { Kysely, Transaction } from "kysely";
 import { DB } from "../schema";
 import { BaseEntityRepository, EntityData } from "./BaseEntityRepository";
 import { UUID, Timestamp, EntityType } from "../../models/models";
+import { validateEntityData } from "../schemas";
 
 // ---------------------------------------------------------------------------
 // Row shapes
@@ -67,7 +68,7 @@ function rowToObjective(row: ObjectiveJoinRow): ObjectiveEntity {
     type: row.type,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
-    data: JSON.parse(row.data) as EntityData,
+    data: validateEntityData(row.id, row.type, JSON.parse(row.data)),
     parentId: row.parent_id,
     progress: row.progress,
     isActive: row.is_active === 1,
@@ -104,6 +105,8 @@ export class ObjectiveRepository extends BaseEntityRepository {
     const ts = Date.now();
     const progress = params.progress ?? 0;
     const isActive = params.isActive ?? true;
+    // Validate before persisting so bad data never reaches the DB.
+    const data = validateEntityData(params.id, params.type, params.data);
 
     await this.db.transaction().execute(async (trx) => {
       // 1. Insert the polymorphic entity
@@ -114,7 +117,7 @@ export class ObjectiveRepository extends BaseEntityRepository {
           type: params.type,
           created_at: ts,
           updated_at: ts,
-          data: JSON.stringify(params.data),
+          data: JSON.stringify(data),
         })
         .execute();
 
@@ -313,13 +316,19 @@ export class ObjectiveRepository extends BaseEntityRepository {
       dueDate?: Timestamp | null;
     },
   ): Promise<void> {
+    const current = await this.findById(id);
+    if (!current) return;
+
+    // Validate against the entity's actual type before persisting.
+    const validated = validateEntityData(id, current.type, data);
+
     await this.db.transaction().execute(async (trx) => {
       const ts = Date.now();
 
       // entities
       await trx
         .updateTable("entities")
-        .set({ data: JSON.stringify(data), updated_at: ts })
+        .set({ data: JSON.stringify(validated), updated_at: ts })
         .where("id", "=", id)
         .execute();
 

@@ -2,7 +2,9 @@ import React from "react";
 import { View, Text } from "react-native";
 import { Vista } from "./types";
 import { coloresui } from "../components/Colores";
-import { theme } from "./theme";
+import { TaskList } from "../components/TaskList";
+import { DiaCalendario } from "../components/DiaCalendario";
+import { WeekTaskList } from "../components/WeekTaskList";
 
 export interface ViewComponentProps {
   accessToken?: string;
@@ -10,6 +12,7 @@ export interface ViewComponentProps {
   viewMode: string;
   setViewMode: (mode: string) => void;
   events?: any[];
+  currentDate?: Date;
 }
 
 export interface TabDefinition {
@@ -43,18 +46,22 @@ const Soon = ({ name }: { name: string }) => (
 export const viewRegistry: Record<Vista, ViewDefinition> = {
   [Vista.Tareas]: {
     tabs: [
-      { label: "Tasks", icon: "✅", target: "day", viewMode: "day" },
-      { label: "Week", icon: "📅", target: "week", viewMode: "week" },
+      { label: "T", icon: "", target: "day", viewMode: "day" },
+      { label: "W", icon: "", target: "week", viewMode: "week" },
       {
-        label: "Calendar",
-        icon: "🗓",
+        label: "S",
+        icon: "",
         target: "schedule",
         viewMode: "schedule",
       },
     ],
     color: coloresui[0].Tareas,
-    component: ({ accessToken }: ViewComponentProps) =>
-      accessToken ? <Text>Tareas!</Text> : null,
+    component: ({ accessToken, viewMode, currentDate }: ViewComponentProps) => {
+      if (!accessToken) return null;
+      if (viewMode === "schedule") return <DiaCalendario />;
+      if (viewMode === "week") return <WeekTaskList currentDate={currentDate} />;
+      return <TaskList />;
+    },
   },
   [Vista.Proyectos]: {
     tabs: [
@@ -80,31 +87,10 @@ export const viewRegistry: Record<Vista, ViewDefinition> = {
     color: coloresui[0].Premios,
     component: () => <Soon name="Premios" />,
   },
-  [Vista.Dia_1]: {
-    tabs: [],
-    color: "#a1c4fd",
-    component: ({ accessToken }: ViewComponentProps) =>
-      accessToken ? <Soon name="DiaCalendario" /> : null,
-  },
   [Vista.Dia_2]: {
     tabs: [],
     color: "#ff9fc0",
     component: () => <Soon name="ArcTimeline" />,
-  },
-  [Vista.Semanas]: {
-    tabs: [],
-    color: "#dcedc8",
-    component: () => <Soon name="Semanas" />,
-  },
-  [Vista.Meses]: {
-    tabs: [],
-    color: "#dcedc8",
-    component: () => <Soon name="Meses" />,
-  },
-  [Vista.Dias]: {
-    tabs: [],
-    color: "#dcedc8",
-    component: () => <Soon name="Dias" />,
   },
   [Vista.Settings]: {
     tabs: [],

@@ -25,7 +25,7 @@ import { useSkillStore } from "../stores/useSkillStore";
 import { UserRepository } from "../db/repositories";
 import { db } from "../db/db";
 import { useGoogleAuth } from "../hooks/useGoogleAuth";
-import { theme } from "../lib/theme";
+import { theme, fonts } from "../lib/theme";
 
 // ---------------------------------------------------------------------------
 // Types for the screen's local UI state
@@ -542,6 +542,7 @@ const styles = StyleSheet.create({
   sectionHeader: {
     fontSize: 12,
     fontWeight: "600",
+    fontFamily: fonts.bodySemiBold,
     color: theme["bright-lavender"],
     textTransform: "uppercase",
     letterSpacing: 1,
@@ -572,12 +573,15 @@ const styles = StyleSheet.create({
   },
   rowLabel: {
     fontSize: 14,
+    fontFamily: fonts.body,
+    fontWeight: "300",
     color: "#aaa",
     flex: 1,
   },
   rowValue: {
     fontSize: 14,
     fontWeight: "500",
+    fontFamily: fonts.body,
     color: "#f0f0f0",
     textAlign: "right",
     flex: 1,
@@ -600,61 +604,75 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 26,
     fontWeight: "700",
+    fontFamily: fonts.heading,
   },
 
   // Inputs
   input: {
     fontSize: 14,
     fontWeight: "500",
-    color: "#1a1a2e",
+    fontFamily: fonts.body,
+    color: "#f0f0f0",
     textAlign: "right",
     borderBottomWidth: 1,
-    borderBottomColor: "#4285F4",
+    borderBottomColor: theme.accent,
     paddingVertical: 2,
     minWidth: 120,
   },
   inputFull: {
-    backgroundColor: "#f5f5f7",
+    backgroundColor: "#2a2a2a",
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 10,
     fontSize: 14,
-    color: "#1a1a2e",
+    fontFamily: fonts.body,
+    color: "#f0f0f0",
   },
 
   // Link
   linkText: {
-    color: "#4285F4",
+    color: theme.accent,
     fontSize: 14,
     fontWeight: "500",
+    fontFamily: fonts.body,
   },
 
   // Password buttons
   pwdBtn: {
-    backgroundColor: "#1a1a2e",
+    backgroundColor: theme.accent,
     borderRadius: 8,
     paddingVertical: 10,
     paddingHorizontal: 20,
     alignItems: "center",
     flex: 1,
   },
-  pwdBtnText: { color: "#fff", fontSize: 14, fontWeight: "600" },
+  pwdBtnText: {
+    color: theme.background,
+    fontSize: 14,
+    fontWeight: "600",
+    fontFamily: fonts.bodySemiBold,
+  },
   pwdCancelBtn: {
     borderRadius: 8,
     paddingVertical: 10,
     paddingHorizontal: 20,
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "#ccc",
+    borderColor: theme.accent,
     flex: 1,
   },
-  pwdCancelText: { color: "#666", fontSize: 14 },
+  pwdCancelText: {
+    color: theme.text,
+    fontSize: 14,
+    fontFamily: fonts.body,
+  },
   inputSmall: {
     fontSize: 14,
     fontWeight: "500",
-    color: "#1a1a2e",
+    fontFamily: fonts.body,
+    color: "#f0f0f0",
     borderBottomWidth: 1,
-    borderBottomColor: "#4285F4",
+    borderBottomColor: theme.accent,
     paddingVertical: 2,
     width: 60,
     textAlign: "center",
@@ -669,18 +687,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 20,
-    backgroundColor: "#eee",
+    backgroundColor: "#2a2a2a",
   },
   chipActive: {
-    backgroundColor: "#4285F4",
+    backgroundColor: theme.accent,
   },
   chipText: {
     fontSize: 12,
-    color: "#555",
+    fontFamily: fonts.body,
+    color: theme.text,
   },
   chipTextActive: {
-    color: "#fff",
+    color: theme.background,
     fontWeight: "600",
+    fontFamily: fonts.bodySemiBold,
   },
 
   // Slider
@@ -691,13 +711,14 @@ const styles = StyleSheet.create({
   },
   sliderValue: {
     fontSize: 14,
-    color: "#1a1a2e",
+    color: "#f0f0f0",
     fontWeight: "500",
+    fontFamily: fonts.body,
   },
 
   // Buttons
   saveBtn: {
-    backgroundColor: "#4285F4",
+    backgroundColor: theme.accent,
     borderRadius: 10,
     paddingVertical: 12,
     alignItems: "center",
@@ -707,9 +728,10 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   saveBtnText: {
-    color: "#fff",
+    color: theme.background,
     fontSize: 14,
     fontWeight: "600",
+    fontFamily: fonts.bodySemiBold,
   },
   signOutBtn: {
     alignSelf: "center",
@@ -719,10 +741,11 @@ const styles = StyleSheet.create({
     color: "#e74c3c",
     fontSize: 13,
     fontWeight: "500",
+    fontFamily: fonts.body,
   },
   separator: {
     height: StyleSheet.hairlineWidth,
-    backgroundColor: "#ddd",
+    backgroundColor: "#333",
     marginVertical: 8,
   },
   deleteBtn: {
@@ -737,9 +760,10 @@ const styles = StyleSheet.create({
     color: "#e74c3c",
     fontSize: 13,
     fontWeight: "600",
+    fontFamily: fonts.bodySemiBold,
   },
   actionBtn: {
-    backgroundColor: "#f0f0f0",
+    backgroundColor: "#2a2a2a",
     borderRadius: 8,
     paddingVertical: 8,
     paddingHorizontal: 16,
@@ -747,7 +771,8 @@ const styles = StyleSheet.create({
   actionBtnText: {
     fontSize: 13,
     fontWeight: "600",
-    color: "#333",
+    fontFamily: fonts.bodySemiBold,
+    color: theme.text,
   },
   btnRow: {
     flexDirection: "row",
@@ -762,21 +787,24 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingVertical: 8,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: "#eee",
+    borderBottomColor: "#333",
   },
   contactName: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#1a1a2e",
+    fontFamily: fonts.bodySemiBold,
+    color: "#f0f0f0",
   },
   contactDetail: {
     fontSize: 12,
+    fontFamily: fonts.body,
     color: "#888",
   },
 
   // Empty
   emptyText: {
     fontSize: 13,
+    fontFamily: fonts.body,
     color: "#aaa",
     fontStyle: "italic",
     textAlign: "center",

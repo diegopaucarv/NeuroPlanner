@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, cloneElement } from "react";
 import { View, Text, Pressable, StyleSheet } from "react-native";
 import {
   AimsIcon,
@@ -8,7 +8,7 @@ import {
   SettingsIcon,
 } from "./lib/iconos";
 import { Vista } from "./lib/types";
-import { theme } from "./lib/theme";
+import { theme, fonts } from "./lib/theme";
 
 interface NavItemProps {
   label: string;
@@ -23,27 +23,30 @@ const NavItem: React.FC<NavItemProps> = ({
   icon,
   isActive,
   onPress,
-  highlightColor,
-}) => (
-  <Pressable
-    onPress={onPress}
-    accessibilityRole="button"
-    accessibilityLabel={label}
-    style={({ pressed }) => [
-      {
-        flexDirection: "column",
-        alignItems: "center",
-        padding: 12,
-        borderRadius: 12,
-        marginBottom: 20,
-      },
-      isActive && { backgroundColor: highlightColor || "#3b82f6" },
-      pressed && { opacity: 0.7, backgroundColor: "#333" },
-    ]}
-  >
-    <View style={{ padding: 4, width: 40, height: 40 }}>{icon}</View>
-  </Pressable>
-);
+}) => {
+  // Active item: lavender pill with black icon + text (mockup's "Hoy" tab).
+  // Inactive: transparent pill with light-gray icon + text.
+  const color = isActive ? theme.background : theme.text;
+  const coloredIcon = cloneElement(
+    icon as React.ReactElement<{ fill?: string; stroke?: string }>,
+    { fill: color, stroke: color },
+  );
+  return (
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      style={({ pressed }) => [
+        styles.item,
+        isActive && styles.itemActive,
+        pressed && { opacity: 0.7 },
+      ]}
+    >
+      <View style={styles.iconWrap}>{coloredIcon}</View>
+      <Text style={[styles.label, isActive && styles.labelActive]}>{label}</Text>
+    </Pressable>
+  );
+};
 
 export interface NavItemData {
   label: string;
@@ -54,7 +57,7 @@ export interface NavItemData {
 
 export const navigationItems: NavItemData[] = [
   {
-    label: "Today",
+    label: "Tasks",
     view: Vista.Tareas,
     icon: <CalendarIcon />,
     highlightColor: "rgba(139,195,74,0.5)",
@@ -118,14 +121,42 @@ const NavBar: React.FC<NavBarProps> = ({
 const styles = StyleSheet.create({
   navbar: {
     flexDirection: "row",
-    position: "absolute",
-    bottom: 0,
     width: "100%",
     paddingVertical: 8,
     paddingHorizontal: 16,
-    zIndex: 50,
     justifyContent: "space-between",
-    backgroundColor: theme.black,
+    backgroundColor: theme.background,
+  },
+  item: {
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    width: 61,
+    height: 61,
+    gap: 5,
+    borderRadius: 12,
+  },
+  itemActive: {
+    backgroundColor: "rgba(217, 181, 255, 0.85)",
+  },
+  iconWrap: {
+    width: 23,
+    height: 23,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  label: {
+    fontSize: 13,
+    fontFamily: fonts.body,
+    fontWeight: "300",
+    color: theme.text,
+    marginTop: 2,
+  },
+  labelActive: {
+    color: theme.background,
+    fontFamily: fonts.bodySemiBold,
+    fontWeight: "600",
+    fontSize: 14,
   },
 });
 

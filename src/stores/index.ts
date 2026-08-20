@@ -27,3 +27,6 @@ export type {
   DrillWithSkill,
   SessionWithDetails,
 } from "./useSkillStore";
+
+export { useRewardStore } from "./useRewardStore";
+export type { RewardState } from "./useRewardStore";

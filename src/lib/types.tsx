@@ -2,6 +2,8 @@
  * Core Calendar Types
  */
 
+import type { GestureResponderEvent } from "react-native";
+
 // Tarea
 interface TareaBase {
   id: string;
@@ -75,7 +77,7 @@ export interface TaskItemProps {
   animatingConnection: string | null;
   dragOverTaskId: string | null;
   setDragOverTaskId: React.Dispatch<React.SetStateAction<string | null>>;
-  onDeleteTask: (taskId: string, e: React.MouseEvent) => void;
+  onDeleteTask: (taskId: string, e: GestureResponderEvent) => void;
   onToggleCompletion: (taskId: string) => void;
   onUpdateTask: (taskId: string, updates: Partial<Task>) => void;
   onTaskDropped: (
@@ -89,10 +91,10 @@ export interface TaskItemProps {
   // Optional props that might not be needed anymore:
   level?: number; // Not used in current implementation
   addConsecutiveTask?: (blockId: string, text?: string) => void; // Handled at higher level
-  onDragStart?: (e: React.DragEvent) => void; // Handled by react-dnd
+  onDragStart?: (e: GestureResponderEvent) => void; // Handled by react-dnd
   onDragEnd?: () => void; // Handled by react-dnd
-  onDragOver?: (e: React.DragEvent) => void; // Handled by react-dnd
-  onDrop?: (e: React.DragEvent) => void; // Replaced by onTaskDropped
+  onDragOver?: (e: GestureResponderEvent) => void; // Handled by react-dnd
+  onDrop?: (e: GestureResponderEvent) => void; // Replaced by onTaskDropped
 }
 
 // Block (Proyecto)
@@ -134,10 +136,7 @@ export interface BlockComponentProps {
   onAddSubBlock: (parentId: string) => void;
   onUpdateContent: (id: string, name: string, parentId?: string | null) => void;
   onDeleteBlock: (id: string, parentId?: string | null) => void;
-  onDragStart?: (
-    e: React.DragEvent<HTMLDivElement>,
-    item: DraggableItem,
-  ) => void;
+  onDragStart?: (e: GestureResponderEvent, item: any) => void;
   events: Task[];
   accessToken: string;
   isLoading: boolean;
@@ -238,11 +237,6 @@ export interface EventCardProps {
   mode?: "compact" | "detailed";
 }
 
-export interface DroppableAreaProps {
-  hour: number;
-  droppedEvents: CalendarEvent[];
-}
-
 /**
  * Data Structure Types
  */
@@ -251,15 +245,6 @@ export type EventsData = Record<string, CalendarEvent[]>;
 /**
  * External API Types
  */
-
-/**
- * Drag & Drop Types
- */
-export interface DropResult {
-  event: CalendarEvent;
-  targetTime: string;
-  targetDate: string;
-}
 
 /**
  * Calendar Config Types
@@ -290,34 +275,6 @@ export interface GridProps {
   localTimeZone: string;
 }
 
-export interface MiddleColumnProps {
-  events: Event[];
-  grid: CalendarGrid;
-  time: number;
-  droppedEvents: { [hour: number]: DroppableEvent[] };
-  onDrop: (hour: number, event: DroppableEvent) => void;
-}
-
-export interface RightColumnProps {
-  events: DroppableEvent[];
-  grid: CalendarGrid;
-}
-
-export interface DroppableEvent extends CalendarEvent {
-  id: string;
-  start: string;
-  end: string;
-
-  weekId: string;
-  dropTime: string;
-  hierarchyLevel: number;
-  isComponent: boolean;
-  subBlocks?: DroppableEvent[];
-  // Add missing required fields from GoogleEvent
-  summary: string; // Add title property
-  colorId?: string;
-}
-
 export interface Event {
   id: string;
   summary: string;
@@ -336,12 +293,6 @@ export interface ActiveEvent {
 // Define the eventsData type, mapping string keys (dates) to Event arrays
 export type CalendarGrid = GridRow[];
 
-export interface DroppableRowProps {
-  hour: number;
-  droppedEvents: DroppableEvent[];
-  onDrop: (event: DroppableEvent) => void;
-}
-
 export const TIME_DIVIDERS: TimeDividerData[] = [
   { hour: 6, label: "Morning", className: "text-blue-600" },
   { hour: 12, label: "Noon", className: "text-yellow-600" },
@@ -358,25 +309,38 @@ export interface EventAndTaskListProps {
 export interface BaseBlock {
   id?: number;
 }
-// Draggable item interface for drag-and-drop actions
+
 export interface DraggableItem extends BaseBlock {
   type: "component" | "subcomponent";
-  summary: string; // Required for draggable items
+  summary: string;
   isExpanded?: boolean;
-  subBlocks?: DraggableItem[]; // Nested draggable items
-  hierarchyLevel: number; // Represents depth in hierarchy
-  parentColor?: string; // Parent block color for nested styling
-  [key: string]: any; // Additional properties
+  subBlocks?: DraggableItem[];
+  hierarchyLevel: number;
+  parentColor?: string;
+  [key: string]: any;
 }
 
 export interface DroppedItem extends DraggableItem {
-  weekId: string; // Unique ID for the week
-  dropTime: string; // Timestamp for when item was dropped
-  color: string; // Color of the dropped item
-  parentColor?: string; // Inherits parent block color
-  hierarchyLevel: number; // Depth in hierarchy
-  isComponent: boolean; // True if it's a top-level component
-  subBlocks?: DroppedItem[]; // Nested dropped items
+  weekId: string;
+  dropTime: string;
+  color: string;
+  parentColor?: string;
+  hierarchyLevel: number;
+  isComponent: boolean;
+  subBlocks?: DroppedItem[];
+}
+
+export interface DroppableEvent extends CalendarEvent {
+  id: string;
+  start: string;
+  end: string;
+  weekId: string;
+  dropTime: string;
+  hierarchyLevel: number;
+  isComponent: boolean;
+  subBlocks?: DroppableEvent[];
+  summary: string;
+  colorId?: string;
 }
 
 export interface Week {
@@ -384,11 +348,6 @@ export interface Week {
   weekNum: number;
   startDate: string;
   endDate: string;
-}
-
-export interface WeekScrollerProps {
-  droppedItems?: DroppedItem[];
-  setDroppedItems: React.Dispatch<React.SetStateAction<DroppedItem[]>>;
 }
 
 export type ZoomState = {
@@ -458,9 +417,9 @@ export interface WeekViewProps {
   onAddTask: (date: Date) => void;
   onAddEvent: (date: Date) => void;
   onStartEditing: (task: Task) => void;
-  onDeleteTask: (taskId: string, e: React.MouseEvent) => void;
+  onDeleteTask: (taskId: string, e: GestureResponderEvent) => void;
   onConvertToEvent: (task: Task) => void;
-  onDragEnd: (result: DropResult) => void;
+  onDragEnd: (result: any) => void;
   onBreakDownObjective: (objectiveId: string) => void;
   isBreakingDown: string | null;
   setIsBreakingDown: (objectiveId: string | null) => void;
@@ -609,14 +568,14 @@ export interface ProjectContextType {
 
   // Drag and drop handlers
   handleDragStart: (
-    e: React.DragEvent,
+    e: GestureResponderEvent,
     id: string,
     type: "task" | "block",
   ) => void;
   handleDragEnd: () => void;
-  handleDragOver: (e: React.DragEvent) => void;
+  handleDragOver: (e: GestureResponderEvent) => void;
   handleDrop: (
-    e: React.DragEvent,
+    e: GestureResponderEvent,
     targetId: string,
     targetType: "task" | "block",
   ) => void;

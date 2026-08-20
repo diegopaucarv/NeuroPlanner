@@ -1,6 +1,7 @@
 import "./global.css";
 import React, { useState, useEffect } from "react";
 import { StatusBar } from "expo-status-bar";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaView, SafeAreaProvider } from "react-native-safe-area-context";
 import {
   StyleSheet,
@@ -21,7 +22,8 @@ import { useObjectiveStore } from "./src/stores/useObjectiveStore";
 import { useHabitStore } from "./src/stores/useHabitStore";
 import { UserRepository } from "./src/db/repositories";
 import { useGoogleAuth } from "./src/hooks/useGoogleAuth";
-import { theme } from "./src/lib/theme";
+import { theme, fonts } from "./src/lib/theme";
+import { useFonts } from "./src/lib/fonts";
 
 const BootScreen = ({
   onGoogleSignIn,
@@ -142,6 +144,7 @@ const BootScreen = ({
 };
 
 const AppContent = () => {
+  const { loaded: fontsLoaded } = useFonts();
   const { currentView, changeView } = useView();
   const {
     user: googleUser,
@@ -227,7 +230,7 @@ const AppContent = () => {
     };
   }, [googleLoading, googleUser]);
 
-  if (!ready)
+  if (!ready || !fontsLoaded)
     return (
       <SafeAreaView style={styles.safeArea}>
         <BootScreen
@@ -259,11 +262,13 @@ const AppContent = () => {
 
 export default function App() {
   return (
-    <SafeAreaProvider>
-      <ViewProvider defaultView={Vista.Tareas}>
-        <AppContent />
-      </ViewProvider>
-    </SafeAreaProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <ViewProvider defaultView={Vista.Tareas}>
+          <AppContent />
+        </ViewProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }
 
@@ -277,8 +282,19 @@ const styles = StyleSheet.create({
     gap: 16,
     paddingHorizontal: 32,
   },
-  bootTitle: { fontSize: 28, fontWeight: "700", color: "#f0f0f0" },
-  bootSub: { fontSize: 14, color: "#aaa", textAlign: "center" },
+  bootTitle: {
+    fontSize: 28,
+    fontWeight: "300",
+    fontFamily: fonts.heading,
+    color: "#f0f0f0",
+  },
+  bootSub: {
+    fontSize: 14,
+    fontFamily: fonts.body,
+    fontWeight: "300",
+    color: "#aaa",
+    textAlign: "center",
+  },
   form: { width: "100%", gap: 10, marginTop: 12 },
   input: {
     backgroundColor: "#2a2a2a",

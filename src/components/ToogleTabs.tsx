@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, Pressable, StyleSheet } from "react-native";
 import { TabDefinition } from "../lib/viewRegistry";
+import { theme, fonts } from "../lib/theme";
 
 interface ToggleTabsProps {
   tabs: TabDefinition[];
@@ -13,7 +14,7 @@ export const ToggleTabs: React.FC<ToggleTabsProps> = ({
   tabs,
   activeView,
   onPress,
-  backgroundColor = "rgba(200,200,200,0.4)",
+  backgroundColor = theme.background,
 }) => {
   if (tabs.length === 0) return null;
 
@@ -43,7 +44,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-evenly",
-    marginHorizontal: 20,
     borderRadius: 999,
     height: 40,
     paddingHorizontal: 4,
@@ -57,22 +57,18 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   tabActive: {
-    backgroundColor: "#fff",
-    // subtle shadow so the pill "lifts"
-    shadowColor: "#000",
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 1 },
-    elevation: 2,
+    backgroundColor: theme.accent,
   },
   label: {
     fontSize: 14,
-    color: "rgba(0,0,0,0.7)",
+    color: theme.text,
     fontWeight: "300",
+    fontFamily: fonts.body,
   },
   labelActive: {
     fontWeight: "600",
-    color: "#000",
+    fontFamily: fonts.bodySemiBold,
+    color: theme.background,
   },
   icon: {
     fontSize: 14,

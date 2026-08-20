@@ -10,6 +10,7 @@
 import { Kysely, Transaction } from "kysely";
 import { DB } from "../schema";
 import { UUID, Timestamp, EntityType } from "../../models/models";
+import { validateEntityData } from "../schemas";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -71,7 +72,9 @@ export class BaseEntityRepository {
       type: row.type,
       createdAt: row.created_at,
       updatedAt: row.updated_at,
-      data: deserialize(row.data),
+      // Validate on read so corrupt rows fail fast instead of surfacing
+      // later as confusing runtime errors.
+      data: validateEntityData(row.id, row.type, deserialize(row.data)),
     };
   }
 
@@ -92,13 +95,15 @@ export class BaseEntityRepository {
     type: EntityType,
     data: EntityData,
   ): Promise<DeserializedEntity> {
+    // Validate before persisting so bad data never reaches the DB.
+    const validated = validateEntityData(id, type, data);
     const ts = now();
     const row: EntityRow = {
       id,
       type,
       created_at: ts,
       updated_at: ts,
-      data: serialize(data),
+      data: serialize(validated),
     };
 
     await this.db.insertInto("entities").values(row).execute();
@@ -170,18 +175,20 @@ export class BaseEntityRepository {
     id: UUID,
     data: EntityData,
   ): Promise<DeserializedEntity | undefined> {
+    const current = await this.findById(id);
+    if (!current) return undefined;
+
+    // Validate against the entity's actual type before persisting.
+    const validated = validateEntityData(id, current.type, data);
     const ts = now();
 
-    const result = await this.db
+    await this.db
       .updateTable("entities")
-      .set({ data: serialize(data), updated_at: ts })
+      .set({ data: serialize(validated), updated_at: ts })
       .where("id", "=", id)
-      .executeTakeFirst();
+      .execute();
 
-    // Kysely doesn't return the row on update by default, so re-fetch
-    if (result.numUpdatedRows === 0n) return undefined;
-
-    return this.findById(id);
+    return { ...current, data: validated, updatedAt: ts };
   }
 
   /**
@@ -196,7 +203,17 @@ export class BaseEntityRepository {
     if (!current) return undefined;
 
     const merged: EntityData = { ...current.data, ...partial };
-    return this.update(id, merged);
+    // Validate the merged payload against the entity's actual type.
+    const validated = validateEntityData(id, current.type, merged);
+    const ts = now();
+
+    await this.db
+      .updateTable("entities")
+      .set({ data: serialize(validated), updated_at: ts })
+      .where("id", "=", id)
+      .execute();
+
+    return { ...current, data: validated, updatedAt: ts };
   }
 
   // -----------------------------------------------------------------------

@@ -9,6 +9,7 @@
 import { Kysely, Transaction } from "kysely";
 import { DB } from "../schema";
 import { UUID, Timestamp } from "../../models/models";
+import { validateReflectionData } from "../schemas";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -56,7 +57,8 @@ export class ReflectionRepository {
       userId: row.user_id,
       type: row.type,
       timestamp: row.timestamp,
-      data: JSON.parse(row.data),
+      // Validate on read so corrupt rows fail fast.
+      data: validateReflectionData(row.id, row.type, JSON.parse(row.data)),
     };
   }
 
@@ -73,12 +75,14 @@ export class ReflectionRepository {
   }): Promise<Reflection> {
     const id =
       params.id ?? crypto.randomUUID?.() ?? `${Date.now()}-${Math.random()}`;
+    // Validate before persisting so bad data never reaches the DB.
+    const data = validateReflectionData(id, params.type, params.data);
     const row: ReflectionRow = {
       id,
       user_id: params.userId,
       type: params.type,
       timestamp: params.timestamp ?? Date.now(),
-      data: JSON.stringify(params.data),
+      data: JSON.stringify(data),
     };
 
     await this.db.insertInto("reflections").values(row).execute();
@@ -170,9 +174,14 @@ export class ReflectionRepository {
     id: UUID,
     data: Record<string, unknown>,
   ): Promise<void> {
+    const current = await this.findById(id);
+    if (!current) return;
+
+    // Validate against the reflection's actual type before persisting.
+    const validated = validateReflectionData(id, current.type, data);
     await this.db
       .updateTable("reflections")
-      .set({ data: JSON.stringify(data) })
+      .set({ data: JSON.stringify(validated) })
       .where("id", "=", id)
       .execute();
   }

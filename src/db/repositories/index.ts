@@ -41,3 +41,6 @@ export type {
   RewardRow,
   RewardRedemptionRow,
 } from "./RewardRepository";
+
+export { ImageRepository } from "./ImageRepository";
+export type { ImageRow } from "./ImageRepository";
