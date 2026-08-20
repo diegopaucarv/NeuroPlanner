@@ -23,6 +23,7 @@ export interface ObjectiveRow {
   progress: number; // 0..1
   is_active: number; // 0 | 1 (SQLite boolean)
   due_date: Timestamp | null;
+  sort_order: number; // child ordering among siblings
 }
 
 export interface ObjectiveLinkRow {
@@ -43,6 +44,7 @@ export interface ObjectiveEntity {
   progress: number;
   isActive: boolean;
   dueDate: Timestamp | null;
+  sortOrder: number;
 }
 
 // ---------------------------------------------------------------------------
@@ -60,6 +62,7 @@ interface ObjectiveJoinRow {
   progress: number;
   is_active: number;
   due_date: Timestamp | null;
+  sort_order: number;
 }
 
 function rowToObjective(row: ObjectiveJoinRow): ObjectiveEntity {
@@ -73,6 +76,7 @@ function rowToObjective(row: ObjectiveJoinRow): ObjectiveEntity {
     progress: row.progress,
     isActive: row.is_active === 1,
     dueDate: row.due_date,
+    sortOrder: row.sort_order,
   };
 }
 
@@ -101,6 +105,7 @@ export class ObjectiveRepository extends BaseEntityRepository {
     progress?: number;
     isActive?: boolean;
     dueDate?: Timestamp;
+    sortOrder?: number;
   }): Promise<ObjectiveEntity> {
     const ts = Date.now();
     const progress = params.progress ?? 0;
@@ -130,6 +135,7 @@ export class ObjectiveRepository extends BaseEntityRepository {
           progress,
           is_active: isActive ? 1 : 0,
           due_date: params.dueDate ?? null,
+          sort_order: params.sortOrder ?? 0,
         })
         .execute();
 
@@ -164,6 +170,7 @@ export class ObjectiveRepository extends BaseEntityRepository {
         "objectives.progress",
         "objectives.is_active",
         "objectives.due_date",
+        "objectives.sort_order",
       ])
       .where("entities.id", "=", id)
       .executeTakeFirst();
@@ -188,6 +195,7 @@ export class ObjectiveRepository extends BaseEntityRepository {
         "objectives.progress",
         "objectives.is_active",
         "objectives.due_date",
+        "objectives.sort_order",
       ])
       .where("entities.type", "in", types)
       .orderBy("entities.created_at", "desc")
@@ -221,8 +229,10 @@ export class ObjectiveRepository extends BaseEntityRepository {
         "objectives.progress",
         "objectives.is_active",
         "objectives.due_date",
+        "objectives.sort_order",
       ])
       .where("entities.id", "in", childIds)
+      .orderBy("objectives.sort_order", "asc")
       .execute();
 
     return rows.map((r) => rowToObjective(r as ObjectiveJoinRow));
@@ -314,6 +324,7 @@ export class ObjectiveRepository extends BaseEntityRepository {
       isActive?: boolean;
       parentId?: UUID | null;
       dueDate?: Timestamp | null;
+      sortOrder?: number;
     },
   ): Promise<void> {
     const current = await this.findById(id);
@@ -343,6 +354,8 @@ export class ObjectiveRepository extends BaseEntityRepository {
           set.parent_id = objectiveFields.parentId;
         if (objectiveFields.dueDate !== undefined)
           set.due_date = objectiveFields.dueDate;
+        if (objectiveFields.sortOrder !== undefined)
+          set.sort_order = objectiveFields.sortOrder;
 
         if (Object.keys(set).length > 0) {
           await trx

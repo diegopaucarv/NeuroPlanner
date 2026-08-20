@@ -89,6 +89,7 @@ export interface Objectives {
   is_active: Generated<number | null>;
   parent_id: string | null;
   progress: Generated<number | null>;
+  sort_order: Generated<number | null>;
 }
 
 export interface Reflections {

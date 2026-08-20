@@ -54,6 +54,7 @@ export interface ObjectiveState {
     data: Record<string, unknown>;
     parentId?: UUID;
     dueDate?: Timestamp;
+    sortOrder?: number;
   }) => Promise<ObjectiveEntity>;
 
   /** Update an objective's JSON data and/or relational fields. */
@@ -65,6 +66,7 @@ export interface ObjectiveState {
       isActive?: boolean;
       parentId?: UUID | null;
       dueDate?: Timestamp | null;
+      sortOrder?: number;
     },
   ) => Promise<void>;
 
@@ -120,9 +122,12 @@ function buildTree(flatMap: Record<UUID, ObjectiveEntity>): ObjectiveTreeNode[] 
     }
   }
 
-  // Sort children by createdAt (oldest first) for stable ordering
+  // Sort children by sortOrder (falling back to createdAt for stability)
   const sortChildren = (n: ObjectiveTreeNode) => {
-    n.children.sort((a, b) => a.createdAt - b.createdAt);
+    n.children.sort((a, b) => {
+      if (a.sortOrder !== b.sortOrder) return a.sortOrder - b.sortOrder;
+      return a.createdAt - b.createdAt;
+    });
     n.children.forEach(sortChildren);
   };
   roots.forEach(sortChildren);
@@ -198,13 +203,14 @@ export const useObjectiveStore = create<ObjectiveState>((set, get) => {
     // CREATE
     // ==================================================================
 
-    async create({ id, type, data, parentId, dueDate }) {
+    async create({ id, type, data, parentId, dueDate, sortOrder }) {
       const entity = await repo().createObjective({
         id,
         type,
         data,
         parentId,
         dueDate,
+        sortOrder,
       });
 
       set((s) => {
@@ -242,6 +248,9 @@ export const useObjectiveStore = create<ObjectiveState>((set, get) => {
           }),
           ...(objectiveFields?.dueDate !== undefined && {
             dueDate: objectiveFields.dueDate,
+          }),
+          ...(objectiveFields?.sortOrder !== undefined && {
+            sortOrder: objectiveFields.sortOrder,
           }),
           updatedAt: Date.now(),
         };

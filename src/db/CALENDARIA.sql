@@ -50,12 +50,14 @@ CREATE TABLE IF NOT EXISTS objectives (
   progress REAL DEFAULT 0 CHECK(progress BETWEEN 0 AND 1),
   is_active INTEGER DEFAULT 1,             -- 1 = active, 0 = paused/archived
   due_date INTEGER,                        -- timestamp (optional)
+  sort_order INTEGER DEFAULT 0,            -- child ordering among siblings
   FOREIGN KEY(id) REFERENCES entities(id) ON DELETE CASCADE,
   FOREIGN KEY(parent_id) REFERENCES objectives(id) ON DELETE CASCADE
 );
 CREATE INDEX IF NOT EXISTS idx_objectives_parent ON objectives(parent_id);
 CREATE INDEX IF NOT EXISTS idx_objectives_due ON objectives(due_date);
 CREATE INDEX IF NOT EXISTS idx_objectives_active ON objectives(is_active);
+CREATE INDEX IF NOT EXISTS idx_objectives_sort ON objectives(parent_id, sort_order);
 
 -- Many-to-many links between objectives (e.g., Goal contains Task)
 CREATE TABLE IF NOT EXISTS objective_links (
