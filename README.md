@@ -1,4 +1,5 @@
 # NeuroPlanner
+![NeuroPlanner Icon](img/NeuroPlanner.png)
 
 NeuroPlanner is a React Native application designed to help users plan and organize their tasks with flexible views and themes.
 
@@ -21,9 +22,6 @@ NeuroPlanner is a React Native application designed to help users plan and organ
 - `docs/` — Documentation and design assets
 - `assets/` — Icons and images used in the app
 
-## Icon
-
-![NeuroPlanner Icon](img/NeuroPlanner.png)
 
 ---
 
